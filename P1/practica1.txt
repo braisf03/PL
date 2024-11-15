@@ -1,0 +1,42 @@
+Brais Sánchez Ferreiro : brais.sferreiro@udc.es
+
+IMPLEMENTACIÓN DEL PROGRAMA:
+
+Primero, definimos todas las variables que necesitaremos,
+incluyendo una para cada contador específico y otra para
+llevar el total de palabras del texto. Dentro de cada regla,
+identificamos las palabras o frases correspondientes,
+actualizamos su contador, incrementamos el número total
+de palabras y sumamos la cantidad de caracteres usando la
+variable yyleng, que FLEX proporciona automáticamente. En
+resumen, creamos una regla para cada tipo de palabra que
+queremos reconocer. Al final, imprimimos el valor de cada
+variable para mostrar los resultados.
+
+En esta práctica se han añadido símbolos especiales como la ñ y otros
+para una mayor completitudo del lenguaje, además de haber añadido una
+regla que estipula casi todos los números como se pueden representar.
+
++ El resultado del fichero text1.txt proporcionado es el siguiente:
+
+Caracteres: 213
+Palabras: 39
+Palabras mixtas: 5
+Palabras en mayúscula: 3
+Palabras en minúscula: 31
+Palabras numéricas: 0
+Frases: 3
+
++ El resultado del fichero text2.txt proporcionado es el siguiente:
+
+Caracteres: 207
+Palabras: 38
+Palabras mixtas: 6
+Palabras en mayúscula: 2
+Palabras en minúscula: 30
+Palabras numéricas: 0
+Frases: 4
+
+INFORMACIÓN:
+
+Esta práctica ha sido desarrollada en Ubuntu 22.04 LTS
