@@ -1,5 +1,5 @@
 FUENTE = practica2
-PRUEBA = ejemplo.xml
+PRUEBA = ejemplo2.xml
 LIB = lfl
 
 all: compile run
