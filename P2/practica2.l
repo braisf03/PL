@@ -4,37 +4,39 @@
 #include "colors.h"
 
 int yyerror();
-
 %}
 
-encoding		(UTF-8)|(UTF-16)
-letter			[a-zA-ZÑñ_]
-number			[0-9]
-sp_char			[\~\@\#\$\%\^\*\!\"\(\)\+\{\}\"\|\[\]\;\'\\\,\.\/\s\:\t\-]
-tagContent		({letter}{number}{sp_char})*
-prolog			"<?xml version=\"1.0\" encoding=\""{encoding}"\"?>"
+/* Definiciones */
+codificacion    (UTF-8)|(UTF-16)
+letra           [a-zA-ZÑñ_]
+numero          [0-9]
+caracter_esp    [\~\@\#\$\%\^\*\!\"$$$$\+\{\}\"\|\[\]\;\'\\\,\.\/\s\:\t\-]
+contenido_etiq  ({letra}|{numero}|{caracter_esp})*
+prologo         "<?xml version=\"1.0\" encoding=\""{codificacion}"\"?>"
 
 %%
 
-"\n"							yylineno++;
-{prolog}						{return XMLPROLOG;}
-"<"								{return TAG_START_OPEN;}
-"</"							{return TAG_START_CLOSE;}
-">"								{return TAG_END;}
-"<!--".*"--".*"-->"				{printf(RED"\nError en la linea %d.\nUn comentario no puede contener la cadena '--'\n\n", yylineno);exit(0);}
-"<!--".*"-->"					{return COMMENT;}
-({letter})({letter}|{number})*	{yylval.string=strdup(yytext); return TAGNAME;}  /*tiene que empezar por una letra*/
-{tagContent}					{return TAGCONTENT;} 		/*no nos importa el contenido*/
-. 								{}		/*para evitar que printee caracteres que no entiende*/
+
+"\n"                            { yylineno++; }
+{prologo}                       { return PROLOGO_XML; }
+"<"                             { return INICIO_ETIQUETA_APERTURA; }
+"</"                            { return INICIO_ETIQUETA_CIERRE; }
+">"                             { return FIN_ETIQUETA; }
+"<!--".*"--".*"-->"             { printf(RED"\nError en la línea %d\nUn comentario no puede contener la cadena '--'\n\n", yylineno);exit(1);}
+"<!--".*"-->"                   { return COMENTARIO; }
+({letra})({letra}|{numero})*    { yylval.string = strdup(yytext);return NOMBRE_ETIQUETA;}
+{contenido_etiq}                { return CONTENIDO_ETIQUETA; }
+.                               { /* Ignorar otros caracteres */ }
+
 %%
 
-
-int yyerror(){
-	printf(RED"\nEncoding invalido: ha de ser UTF-8 o UTF-16\n\n");
-	exit(0);
+/* Funciones auxiliares */
+int yyerror() {
+    printf(RED"\nCodificación inválida: debe ser UTF-8 o UTF-16\n\n");
+    exit(1);
 }
 
-int yywrap(){
-	printf(GREEN"\nSintaxis XML correcta.\n\n");
-	exit(0);
+int yywrap() {
+    printf(GREEN"\nSintaxis XML correcta.\n\n");
+    return 1;
 }

@@ -1,0 +1,34 @@
+Brais Sánchez Ferreiro
+
+Para esta práctica se han utilizado los siguientes tokens:
+
+1. PROLOGO_XML: Para el prólogo o cabecera de los archivos xml.
+2. INICIO_ETIQUETA_APERTURA: Para el inicio de etiquetas de apertura.
+3. INICIO_ETIQUETA_CIERRE: Para el inicio de etiquetas de cierre.
+4. FIN_ETIQUETA: Para el fin de etiqueta.
+5. COMENTARIO: Para los comentarios.
+6. NOMBRE_ETIQUETA: Para el nombre de la etiqueta.
+7. CONTENIDO_ETIQUETA: Para el contenido de las etiquetas.
+
+En el archivo de BISON; en las reglas se esclarece que el prólogo puede aparecer o no,
+que después viene el cuerpo, y que las etiquetas que se encuentran en el cuerpo pueden
+tener más etiquetas o estar sin contenido.
+
+Peculiaridades
+- En el archivo de FLEX puse el . para que lex no imprimiera letras que no reconozca y que simplemente los ignore.
+- En este caso puse que el xml solo pudiera ser 1.0 y que la codificacion solo pudiera ser UFT-8 o UFT-16.
+- El programa muestra un error en el caso de que el fichero no sea xml.
+- En este caso el nombre de las etiquetas debe empezar por una letra.
+- Los comentarios se pueden encontrar en cualquier línea siempre que estén bien hechos.
+
+Para finalizar se incluyen varios archivos de prueba.
+
++ ejemplo.xml debería ser un archivo xml válido.
++ ejemplo2.xml debería dar un error ya que se cierra una etiqueta erroneamente.
++ ejemplo3.xml debería dar un error ya que contiene un comentario mal construído.
++ ejemplo4.xml debería dar un error ya que no se esta utilizando una codificación válida.
++ ejemplo5.txt debería decir que no es un fichero xml.
++ Si no se pone ningún fichero debería decir que se proporcionase un archivo xml.
+	
+Para inicializar el programa se hace "make compile" y luego el "make run" con los números después 
+del run, siendo "make run1" el que hacer que pruebe el ejemplo1.xml, etc...
