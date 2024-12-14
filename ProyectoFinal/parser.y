@@ -17,10 +17,12 @@ void yyerror(const char* s);
 
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
-%token INT RETURN IF ELSE WHILE
+%token INT RETURN IF ELSE WHILE FOR
 %token PLUS MINUS TIMES DIVIDE
 %token ASSIGN EQ NEQ LT GT LTE GTE
-%token LPAREN RPAREN LBRACE RBRACE SEMICOLON
+%token INCREMENT DECREMENT
+%token PLUS_ASSIGN MINUS_ASSIGN TIMES_ASSIGN DIVIDE_ASSIGN
+%token LPAREN RPAREN LBRACE RBRACE SEMICOLON COMMA
 
 %type <sval> expression
 %type <sval> statement
@@ -28,12 +30,17 @@ void yyerror(const char* s);
 %type <sval> function
 %type <sval> program
 %type <sval> declaration
+%type <sval> for_init
+%type <sval> for_condition
+%type <sval> for_update
+%type <sval> compound_assign
 
-%left ASSIGN
+%left ASSIGN PLUS_ASSIGN MINUS_ASSIGN TIMES_ASSIGN DIVIDE_ASSIGN
 %left EQ NEQ
 %left LT GT LTE GTE
 %left PLUS MINUS
 %left TIMES DIVIDE
+%right INCREMENT DECREMENT
 
 %start program
 
@@ -99,15 +106,31 @@ statement:
         free($3);
         free($6);
     }
+    | FOR LPAREN for_init SEMICOLON for_condition SEMICOLON for_update RPAREN LBRACE statements RBRACE
+    {
+        asprintf(&$$, "  let rec for_loop %s =\n    if %s then\n      begin\n%s        %s;\n        for_loop %s\n      end\n    else\n      ()\n  in\n  for_loop %s\n",
+                 $3, $5, $10, $7, $7, $3);
+        free($3);
+        free($5);
+        free($7);
+        free($10);
+    }
     | IDENTIFIER ASSIGN expression SEMICOLON
     {
-        asprintf(&$$, "  %s := %s\n", $1, $3);
+        asprintf(&$$, "  %s := %s;\n", $1, $3);
         free($1);
+        free($3);
+    }
+    | IDENTIFIER compound_assign expression SEMICOLON
+    {
+        asprintf(&$$, "  %s := !%s %s %s;\n", $1, $1, $2, $3);
+        free($1);
+        free($2);
         free($3);
     }
     | expression SEMICOLON
     {
-        asprintf(&$$, "  %s\n", $1);
+        asprintf(&$$, "  %s;\n", $1);
         free($1);
     }
     ;
@@ -115,15 +138,70 @@ statement:
 declaration:
     INT IDENTIFIER ASSIGN expression SEMICOLON
     {
-        asprintf(&$$, "  let %s = %s\n", $2, $4);
+        asprintf(&$$, "  let %s = ref %s\n", $2, $4);
         free($2);
         free($4);
     }
     | INT IDENTIFIER SEMICOLON
     {
-        asprintf(&$$, "  let %s = 0\n", $2);
+        asprintf(&$$, "  let %s = ref 0\n", $2);
         free($2);
     }
+    ;
+
+for_init:
+    INT IDENTIFIER ASSIGN expression
+    {
+        asprintf(&$$, "(ref %s)", $4);
+        free($2);
+        free($4);
+    }
+    | IDENTIFIER ASSIGN expression
+    {
+        asprintf(&$$, "%s := %s", $1, $3);
+        free($1);
+        free($3);
+    }
+    ;
+
+for_condition:
+    expression
+    {
+        $$ = $1;
+    }
+    ;
+
+for_update:
+    IDENTIFIER ASSIGN expression
+    {
+        asprintf(&$$, "%s := %s", $1, $3);
+        free($1);
+        free($3);
+    }
+    | IDENTIFIER INCREMENT
+    {
+        asprintf(&$$, "%s := !%s + 1", $1, $1);
+        free($1);
+    }
+    | IDENTIFIER DECREMENT
+    {
+        asprintf(&$$, "%s := !%s - 1", $1, $1);
+        free($1);
+    }
+    | IDENTIFIER compound_assign expression
+    {
+        asprintf(&$$, "%s := !%s %s %s", $1, $1, $2, $3);
+        free($1);
+        free($2);
+        free($3);
+    }
+    ;
+
+compound_assign:
+    PLUS_ASSIGN     { $$ = strdup("+"); }
+    | MINUS_ASSIGN  { $$ = strdup("-"); }
+    | TIMES_ASSIGN  { $$ = strdup("*"); }
+    | DIVIDE_ASSIGN { $$ = strdup("/"); }
     ;
 
 expression:
@@ -133,7 +211,8 @@ expression:
     }
     | IDENTIFIER
     {
-        $$ = strdup($1);
+        asprintf(&$$, "!%s", $1);
+        free($1);
     }
     | expression PLUS expression   { asprintf(&$$, "%s + %s", $1, $3); free($1); free($3); }
     | expression MINUS expression  { asprintf(&$$, "%s - %s", $1, $3); free($1); free($3); }
@@ -146,6 +225,8 @@ expression:
     | expression LTE expression    { asprintf(&$$, "%s <= %s", $1, $3); free($1); free($3); }
     | expression GTE expression    { asprintf(&$$, "%s >= %s", $1, $3); free($1); free($3); }
     | LPAREN expression RPAREN     { asprintf(&$$, "(%s)", $2); free($2); }
+    | IDENTIFIER INCREMENT         { asprintf(&$$, "(let temp = !%s in %s := temp + 1; temp)", $1, $1); free($1); }
+    | IDENTIFIER DECREMENT         { asprintf(&$$, "(let temp = !%s in %s := temp - 1; temp)", $1, $1); free($1); }
     ;
 
 %%

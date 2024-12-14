@@ -61,22 +61,30 @@ extern int yydebug;
     IF = 262,                      /* IF  */
     ELSE = 263,                    /* ELSE  */
     WHILE = 264,                   /* WHILE  */
-    PLUS = 265,                    /* PLUS  */
-    MINUS = 266,                   /* MINUS  */
-    TIMES = 267,                   /* TIMES  */
-    DIVIDE = 268,                  /* DIVIDE  */
-    ASSIGN = 269,                  /* ASSIGN  */
-    EQ = 270,                      /* EQ  */
-    NEQ = 271,                     /* NEQ  */
-    LT = 272,                      /* LT  */
-    GT = 273,                      /* GT  */
-    LTE = 274,                     /* LTE  */
-    GTE = 275,                     /* GTE  */
-    LPAREN = 276,                  /* LPAREN  */
-    RPAREN = 277,                  /* RPAREN  */
-    LBRACE = 278,                  /* LBRACE  */
-    RBRACE = 279,                  /* RBRACE  */
-    SEMICOLON = 280                /* SEMICOLON  */
+    FOR = 265,                     /* FOR  */
+    PLUS = 266,                    /* PLUS  */
+    MINUS = 267,                   /* MINUS  */
+    TIMES = 268,                   /* TIMES  */
+    DIVIDE = 269,                  /* DIVIDE  */
+    ASSIGN = 270,                  /* ASSIGN  */
+    EQ = 271,                      /* EQ  */
+    NEQ = 272,                     /* NEQ  */
+    LT = 273,                      /* LT  */
+    GT = 274,                      /* GT  */
+    LTE = 275,                     /* LTE  */
+    GTE = 276,                     /* GTE  */
+    INCREMENT = 277,               /* INCREMENT  */
+    DECREMENT = 278,               /* DECREMENT  */
+    PLUS_ASSIGN = 279,             /* PLUS_ASSIGN  */
+    MINUS_ASSIGN = 280,            /* MINUS_ASSIGN  */
+    TIMES_ASSIGN = 281,            /* TIMES_ASSIGN  */
+    DIVIDE_ASSIGN = 282,           /* DIVIDE_ASSIGN  */
+    LPAREN = 283,                  /* LPAREN  */
+    RPAREN = 284,                  /* RPAREN  */
+    LBRACE = 285,                  /* LBRACE  */
+    RBRACE = 286,                  /* RBRACE  */
+    SEMICOLON = 287,               /* SEMICOLON  */
+    COMMA = 288                    /* COMMA  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -90,7 +98,7 @@ union YYSTYPE
     int ival;
     char* sval;
 
-#line 94 "parser.tab.h"
+#line 102 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
