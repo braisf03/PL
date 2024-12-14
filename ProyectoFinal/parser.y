@@ -30,9 +30,6 @@ void yyerror(const char* s);
 %type <sval> function
 %type <sval> program
 %type <sval> declaration
-%type <sval> for_init
-%type <sval> for_condition
-%type <sval> for_update
 %type <sval> compound_assign
 
 %left ASSIGN PLUS_ASSIGN MINUS_ASSIGN TIMES_ASSIGN DIVIDE_ASSIGN
@@ -106,14 +103,27 @@ statement:
         free($3);
         free($6);
     }
-    | FOR LPAREN for_init SEMICOLON for_condition SEMICOLON for_update RPAREN LBRACE statements RBRACE
+    | FOR LPAREN INT IDENTIFIER ASSIGN expression SEMICOLON expression SEMICOLON IDENTIFIER INCREMENT RPAREN LBRACE statements RBRACE
     {
-        asprintf(&$$, "  let rec for_loop %s =\n    if %s then\n      begin\n%s        %s;\n        for_loop %s\n      end\n    else\n      ()\n  in\n  for_loop %s\n",
-                 $3, $5, $10, $7, $7, $3);
-        free($3);
-        free($5);
-        free($7);
-        free($10);
+        char* start_value = $6;
+        char* end_value = $8;
+        char* limit = strchr(end_value, ' ');
+        if (limit) {
+            *limit = '\0';
+            limit++;
+            // Remove any comparison operators
+            char* clean_limit = limit;
+            while (*clean_limit && (*clean_limit == '<' || *clean_limit == '=' || *clean_limit == ' ')) {
+                clean_limit++;
+            }
+            asprintf(&$$, "  for %s = %s to %s do\n%s  done;\n", $4, start_value, clean_limit, $14);
+        } else {
+            asprintf(&$$, "  for %s = %s to 10 do\n%s  done;\n", $4, start_value, $14);
+        }
+        free($4);
+        free($6);
+        free($8);
+        free($14);
     }
     | IDENTIFIER ASSIGN expression SEMICOLON
     {
@@ -138,62 +148,14 @@ statement:
 declaration:
     INT IDENTIFIER ASSIGN expression SEMICOLON
     {
-        asprintf(&$$, "  let %s = ref %s\n", $2, $4);
+        asprintf(&$$, "  let %s = ref %s in\n", $2, $4);
         free($2);
         free($4);
     }
     | INT IDENTIFIER SEMICOLON
     {
-        asprintf(&$$, "  let %s = ref 0\n", $2);
+        asprintf(&$$, "  let %s = ref 0 in\n", $2);
         free($2);
-    }
-    ;
-
-for_init:
-    INT IDENTIFIER ASSIGN expression
-    {
-        asprintf(&$$, "(ref %s)", $4);
-        free($2);
-        free($4);
-    }
-    | IDENTIFIER ASSIGN expression
-    {
-        asprintf(&$$, "%s := %s", $1, $3);
-        free($1);
-        free($3);
-    }
-    ;
-
-for_condition:
-    expression
-    {
-        $$ = $1;
-    }
-    ;
-
-for_update:
-    IDENTIFIER ASSIGN expression
-    {
-        asprintf(&$$, "%s := %s", $1, $3);
-        free($1);
-        free($3);
-    }
-    | IDENTIFIER INCREMENT
-    {
-        asprintf(&$$, "%s := !%s + 1", $1, $1);
-        free($1);
-    }
-    | IDENTIFIER DECREMENT
-    {
-        asprintf(&$$, "%s := !%s - 1", $1, $1);
-        free($1);
-    }
-    | IDENTIFIER compound_assign expression
-    {
-        asprintf(&$$, "%s := !%s %s %s", $1, $1, $2, $3);
-        free($1);
-        free($2);
-        free($3);
     }
     ;
 
@@ -211,7 +173,11 @@ expression:
     }
     | IDENTIFIER
     {
-        asprintf(&$$, "!%s", $1);
+        if (strcmp($1, "i") == 0) {
+            $$ = strdup($1);
+        } else {
+            asprintf(&$$, "!%s", $1);
+        }
         free($1);
     }
     | expression PLUS expression   { asprintf(&$$, "%s + %s", $1, $3); free($1); free($3); }
@@ -235,4 +201,3 @@ void yyerror(const char* s) {
     fprintf(stderr, "Error de análisis: %s\n", s);
     exit(1);
 }
-
