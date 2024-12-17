@@ -16,7 +16,7 @@ void yyerror(const char* s);
 }
 
 %token <ival> NUMBER
-%token <sval> IDENTIFIER
+%token <sval> IDENTIFIER SINGLE_COMMENT MULTI_COMMENT
 %token INT RETURN IF ELSE WHILE FOR
 %token PLUS MINUS TIMES DIVIDE
 %token ASSIGN EQ NEQ LT GT LTE GTE
@@ -31,6 +31,7 @@ void yyerror(const char* s);
 %type <sval> program
 %type <sval> declaration
 %type <sval> compound_assign
+%type <sval> comment
 
 %left ASSIGN PLUS_ASSIGN MINUS_ASSIGN TIMES_ASSIGN DIVIDE_ASSIGN
 %left EQ NEQ
@@ -111,7 +112,6 @@ statement:
         if (limit) {
             *limit = '\0';
             limit++;
-            // Remove any comparison operators
             char* clean_limit = limit;
             while (*clean_limit && (*clean_limit == '<' || *clean_limit == '=' || *clean_limit == ' ')) {
                 clean_limit++;
@@ -142,6 +142,10 @@ statement:
     {
         asprintf(&$$, "  %s;\n", $1);
         free($1);
+    }
+    | comment
+    {
+        $$ = $1;
     }
     ;
 
@@ -195,9 +199,23 @@ expression:
     | IDENTIFIER DECREMENT         { asprintf(&$$, "(let temp = !%s in %s := temp - 1; temp)", $1, $1); free($1); }
     ;
 
+comment:
+    SINGLE_COMMENT
+    {
+        asprintf(&$$, "  (* %s *)\n", $1);
+        free($1);
+    }
+    | MULTI_COMMENT
+    {
+        asprintf(&$$, "  (* %s *)\n", $1);
+        free($1);
+    }
+    ;
+
 %%
 
 void yyerror(const char* s) {
     fprintf(stderr, "Error de análisis: %s\n", s);
     exit(1);
 }
+

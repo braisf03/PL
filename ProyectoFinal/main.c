@@ -2,6 +2,8 @@
 #include "parser.tab.h"
 
 extern FILE* yyin;
+extern int yylineno;
+extern char* yytext;
 
 int main(int argc, char** argv) {
     if (argc != 2) {
@@ -16,9 +18,15 @@ int main(int argc, char** argv) {
     }
 
     yyin = input_file;
-    yyparse();
+    
+    
+    int result = yyparse();
+    
+    if (result != 0) {
+        printf("Error de análisis en la línea %d cerca del token '%s'\n", yylineno, yytext);
+    }
 
     fclose(input_file);
-    return 0;
+    return result;
 }
 

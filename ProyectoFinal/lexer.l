@@ -3,7 +3,19 @@
 #include <string.h>
 %}
 
+%x COMMENT
+%x LINE_COMMENT
+
 %%
+
+"/*"         { BEGIN(COMMENT); yymore(); }
+<COMMENT>"*/" { BEGIN(INITIAL); yylval.sval = strdup(yytext); return MULTI_COMMENT; }
+<COMMENT>.    { yymore(); }
+<COMMENT>\n   { yymore(); }
+
+"//"          { BEGIN(LINE_COMMENT); yymore(); }
+<LINE_COMMENT>.  { yymore(); }
+<LINE_COMMENT>\n { BEGIN(INITIAL); yylval.sval = strdup(yytext); return SINGLE_COMMENT; }
 
 "int"       { return INT; }
 "return"    { return RETURN; }
