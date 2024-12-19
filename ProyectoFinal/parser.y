@@ -82,25 +82,48 @@ statement:
     }
     | RETURN expression SEMICOLON
     {
-        asprintf(&$$, "  %s\n", $2);
-        free($2);
+        asprintf(&$$, ";;\n");
     }
     | IF LPAREN expression RPAREN LBRACE statements RBRACE
     {
-        asprintf(&$$, "  if %s then\n%s  else ()\n", $3, $6);
+        char* trimmed_statements = strdup($6);
+        int len = strlen(trimmed_statements);
+        if (len > 0 && trimmed_statements[len-1] == '\n') {
+            trimmed_statements[len-1] = '\0';
+        }
+        asprintf(&$$, "  if %s then\n%s\n  else ()\n", $3, trimmed_statements);
         free($3);
         free($6);
+        free(trimmed_statements);
     }
     | IF LPAREN expression RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
     {
-        asprintf(&$$, "  if %s then\n%s  else\n%s", $3, $6, $10);
+        char* trimmed_if = strdup($6);
+        char* trimmed_else = strdup($10);
+        int len_if = strlen(trimmed_if);
+        int len_else = strlen(trimmed_else);
+        
+        // Eliminar el último punto y coma y el salto de línea de la parte 'then'
+        while (len_if > 0 && (trimmed_if[len_if-1] == '\n' || trimmed_if[len_if-1] == ';')) {
+            trimmed_if[--len_if] = '\0';
+        }
+        
+        // Asegurarse de que haya un punto y coma al final de la parte 'else'
+        if (len_else > 0 && trimmed_else[len_else-1] != ';') {
+            trimmed_else = realloc(trimmed_else, len_else + 2);
+            strcat(trimmed_else, ";");
+        }
+        
+        asprintf(&$$, "  if %s then\n%s\n  else\n%s\n", $3, trimmed_if, trimmed_else);
         free($3);
         free($6);
         free($10);
+        free(trimmed_if);
+        free(trimmed_else);
     }
     | WHILE LPAREN expression RPAREN LBRACE statements RBRACE
     {
-        asprintf(&$$, "  while %s do\n%s  done\n", $3, $6);
+        asprintf(&$$, "  while %s do\n%s  done;\n", $3, $6);
         free($3);
         free($6);
     }
@@ -218,4 +241,3 @@ void yyerror(const char* s) {
     fprintf(stderr, "Error de análisis: %s\n", s);
     exit(1);
 }
-
