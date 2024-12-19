@@ -121,7 +121,7 @@ statement:
     }
     | RETURN expression SEMICOLON
     {
-        asprintf(&$$, "  %s\n", $2);
+        asprintf(&$$, "  %s (* A veces este no hace falta *)\n", $2);
         free($2);
     }
     | IF LPAREN expression RPAREN LBRACE statements RBRACE
@@ -178,8 +178,6 @@ statement:
                 clean_limit++;
             }
             asprintf(&$$, "  for %s = %s to %s do\n%s  done;\n", $4, start_value, clean_limit, $14);
-        } else {
-            asprintf(&$$, "  for %s = %s to 10 do\n%s  done;\n", $4, start_value, $14);
         }
         free($4);
         free($6);
