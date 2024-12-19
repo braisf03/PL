@@ -28,10 +28,13 @@ void yyerror(const char* s);
 %type <sval> statement
 %type <sval> statements
 %type <sval> function
+%type <sval> functions
 %type <sval> program
 %type <sval> declaration
 %type <sval> compound_assign
 %type <sval> comment
+%type <sval> parameters parameter_list argument_list
+%type <sval> function_call
 
 %left ASSIGN PLUS_ASSIGN MINUS_ASSIGN TIMES_ASSIGN DIVIDE_ASSIGN
 %left EQ NEQ
@@ -45,7 +48,7 @@ void yyerror(const char* s);
 %%
 
 program:
-    function
+    functions
     {
         $$ = $1;
         printf("%s", $$);
@@ -53,12 +56,48 @@ program:
     }
     ;
 
-function:
-    INT IDENTIFIER LPAREN RPAREN LBRACE statements RBRACE
+functions:
+    function
     {
-        asprintf(&$$, "let %s () =\n%s", $2, $6);
+        $$ = $1;
+    }
+    | functions function
+    {
+        asprintf(&$$, "%s\n%s", $1, $2);
+        free($1);
         free($2);
-        free($6);
+    }
+    ;
+
+function:
+    INT IDENTIFIER LPAREN parameters RPAREN LBRACE statements RBRACE
+    {
+        asprintf(&$$, "let %s %s =\n%s;;\n", $2, $4, $7);
+        free($2);
+        free($4);
+        free($7);
+    }
+    ;
+
+parameters:
+    /* empty */
+    {
+        $$ = strdup("()");
+    }
+    | parameter_list
+    ;
+
+parameter_list:
+    INT IDENTIFIER
+    {
+        asprintf(&$$, "%s", $2);
+        free($2);
+    }
+    | parameter_list COMMA INT IDENTIFIER
+    {
+        asprintf(&$$, "%s %s", $1, $4);
+        free($1);
+        free($4);
     }
     ;
 
@@ -82,7 +121,8 @@ statement:
     }
     | RETURN expression SEMICOLON
     {
-        asprintf(&$$, ";;\n");
+        asprintf(&$$, "  %s\n", $2);
+        free($2);
     }
     | IF LPAREN expression RPAREN LBRACE statements RBRACE
     {
@@ -103,12 +143,10 @@ statement:
         int len_if = strlen(trimmed_if);
         int len_else = strlen(trimmed_else);
         
-        // Eliminar el último punto y coma y el salto de línea de la parte 'then'
         while (len_if > 0 && (trimmed_if[len_if-1] == '\n' || trimmed_if[len_if-1] == ';')) {
             trimmed_if[--len_if] = '\0';
         }
         
-        // Asegurarse de que haya un punto y coma al final de la parte 'else'
         if (len_else > 0 && trimmed_else[len_else-1] != ';') {
             trimmed_else = realloc(trimmed_else, len_else + 2);
             strcat(trimmed_else, ";");
@@ -220,6 +258,38 @@ expression:
     | LPAREN expression RPAREN     { asprintf(&$$, "(%s)", $2); free($2); }
     | IDENTIFIER INCREMENT         { asprintf(&$$, "(let temp = !%s in %s := temp + 1; temp)", $1, $1); free($1); }
     | IDENTIFIER DECREMENT         { asprintf(&$$, "(let temp = !%s in %s := temp - 1; temp)", $1, $1); free($1); }
+    | function_call
+    ;
+
+function_call:
+    IDENTIFIER LPAREN argument_list RPAREN
+    {
+        asprintf(&$$, "%s %s", $1, $3);
+        free($1);
+        free($3);
+    }
+    ;
+
+argument_list:
+    NUMBER
+    {
+        asprintf(&$$, "(ref %d)", $1);
+    }
+    | IDENTIFIER
+    {
+        $$ = strdup($1);
+    }
+    | argument_list COMMA NUMBER
+    {
+        asprintf(&$$, "%s (ref %d)", $1, $3);
+        free($1);
+    }
+    | argument_list COMMA IDENTIFIER
+    {
+        asprintf(&$$, "%s %s", $1, $3);
+        free($1);
+        free($3);
+    }
     ;
 
 comment:
@@ -241,3 +311,4 @@ void yyerror(const char* s) {
     fprintf(stderr, "Error de análisis: %s\n", s);
     exit(1);
 }
+
