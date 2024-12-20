@@ -67,3 +67,7 @@ errWhileCorch: all
 
 errWhileParen: all
 	./translator $(WHILEPAREN) > output.ml
+
+# Borrar los archivos que sobran
+clean:
+	rm translator lex.yy.c parser.tab.c parser.tab.h
