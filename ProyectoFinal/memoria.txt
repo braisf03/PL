@@ -1,0 +1,99 @@
+Memoria del Proyecto: Traductor de C a OCaml
+Autor: Brais Sánchez Ferreiro
+
+1. Objetivos de la práctica:
+   - Crear y desarrollar un traductor que pase código en C a OCaml.
+   - Generar código OCaml equivalente a partir del análisis del código C.
+   - Manejar estructuras básicas como funciones, declaraciones, bucles y condicionales.
+   - Implementar un sistema de manejo de errores para proporcionar feedback útil al usuario.
+
+2. Ficheros que componen el proyecto:
+   - lexer.l: Es el archivo Flex con el analizador léxico.
+   - parser.y: Es el archivo Bison con el analizador sintáctico.
+   - main.c: Con el se inicia el proyecto.
+   - colors.h: Es un archivo de cabecera para darle colores significativos a los mensajes.
+   - Makefile: Con este archivo se puede "automatizar" la compilación del proyecto.
+
+3. Instrucciones de compilación/ejecución:
+   + Compilación:
+    - Se necesita tener Flex, Bison y GCC instalados.
+    - Se ejecuta el comando 'make' en el directorio del proyecto.
+    - Esto generará el ejecutable 'translator'.
+
+   + Ejecución:
+    - Use el comando: ./translator <archivo_entrada.c> para ficheros exactos.
+    - Ejemplo: ./translator ejemplo.c
+
+   + En este proyecto se incluyen pruebas de ejecución y errores:
+    Prueba:
+    - 'make basico': Es un fichero donde se prueba la definicion de variables y la estructura if-else.
+    - 'make bucles': En este fichero se prueba el bucle for.
+    - 'make junto': En este se prueban muchas cosas juntas como las variables, el if-else, el for y el while.
+    - 'make functions': Por último se prueba la definición de funciones junto con el main.
+    (Todo el código generado por estas pruebas compila en OCaml en mi ordenador)
+
+    Error:
+    - 'make errCorchFN': Error -> no se abre el corchete de la función.
+    - 'make errCorchIF': Error -> no se abre el corchete de la sentencia if-else.
+    - 'make errParenFN': Error -> no se cierra el paréntesis de la función.
+    - 'make errParenIF': Error -> no se cierra el paréntesis de la sentencia if-else.
+    - 'make errVariable': Error -> declaración de variable inválida.
+    - 'make errForCorch': Error -> no se abre el corchete del bucle for.
+    - 'make errForParen': Error -> no se cierra el paréntesis del bucle for.
+    - 'make errWhileCorch': Error -> no se abre el corchete del bucle while.
+    - 'make errWhileParen': Error -> no se cierra el paréntesis del bucle while.
+
+4. Descripción del analizador léxico (lexer.l):
+   - Reconoce los tokens del lenguaje C como palabras clave, identificadores, números, etc...
+   - Reconoce comentarios de una línea (//) y multilínea (/* */).
+   - Ignora los espacios en blanco y saltos de línea.
+   - Proporciona información de la ubicación (línea y columna) para cada token.
+
+5. Descripción del analizador sintáctico (parser.y):
+   - Define la gramática para un subconjunto del lenguaje C.
+   - Maneja estructuras como funciones, declaraciones, asignaciones, expresiones, bucles y condicionales.
+   - Genera código OCaml equivalente para cada estructura reconocida.
+   - Implementa varias reglas para manejar errores sintácticos comunes como declaración errónea de variables,
+     paréntesis o corchetes mal.
+
+6. Tratamiento de errores:
+   - Se implementó un sistema de manejo de errores que proporciona mensajes descriptivos.
+   - Los errores se muestran con información de la línea donde ocurrieron.
+   - Se utilizan colores en la consola para resaltar los mensajes de error.
+     * Mensaje amarillo: error en línea y tipo de error.
+     * Mensaje azul: token encontrado no esperado.
+     * Mensaje rojo: por qué se dio el error.
+   - Errores manejados incluyen:
+     * Falta de llaves en funciones, bucles y condicionales.
+     * Falta de paréntesis en condiciones.
+     * Estructuras incorrectas en bucles for y while.
+     * Declaraciones de variables inválidas.
+
+7. Problemas encontrados y soluciones:
+   - Diferencias semánticas entre C y OCaml: Se resolvieron utilizando construcciones 
+     equivalentes en OCaml (ej: referencias para variables mutables).
+   - OCaml tiene reglas de ámbito diferentes a C,como la estructura de las funciones o
+     declaraciones de variables, lo que requirió ajustes en la generación de código.
+   - Bucles for: La traducción directa y/o óptima no siempre es posible, se optó por una
+     aproximación que funciona para casos simples.
+
+8. Limitaciones y posibles mejoras:
+   - No fue posible la implementación de tipos de datos como float debido a la forma que tiene
+     Ocaml de tratar a las variables, ya que cuando en C los int y los float usan el + los dos
+     para sumar, en OCaml el float necesita el +., que es complicado de implementar. Se podría
+     implementar con un registro en el que se escriba que tipo es la variable, pero sería muy
+     complejo de añadir.
+   - Se podría mejorar la traducción de estructuras de control complejas como los bucles while
+     y for, además de que permitan bucles con valores descendentes aparte de ascendentes.
+   - Implementar un sistema de tipos que añada más robustez al traductor.
+   - Añadir soporte para estructuras de C como structs, enums, etc.
+   - Se podría mejorar el manejo de errores con recuperación para permitir la continuación del análisis.
+
+9. Comentarios adicionales:
+   - Se ha intentado generar código OCaml lo más cercano posible al estilo idiomático 
+    del lenguaje, aunque algunas construcciones pueden no ser óptimas.
+
+Esta práctica ha proporcionado una valiosa experiencia en el diseño e implementación de 
+traductores de lenguajes, así como en la comprensión profunda de las diferencias y 
+similitudes entre C y OCaml.
+
