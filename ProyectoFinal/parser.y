@@ -11,6 +11,7 @@ extern FILE* yyin;
 void yyerror(const char* s);
 extern int yylineno;
 extern char* yytext;
+int error_count = 0;
 %}
 
 %union {
@@ -93,7 +94,6 @@ function:
     ;
 
 parameters:
-    /* empty */
     {
         $$ = strdup("()");
     }
@@ -334,9 +334,16 @@ comment:
 %%
 
 void yyerror(const char* s) {
-    fprintf(stderr, YELLOW"Error en línea %d: %s \n", yylineno, s);
-    if (strcmp(s, "syntax error") == 0) {
-        fprintf(stderr, CYAN"Token no esperado: %s\n", yytext);
+    error_count++;
+    if(error_count < 3){
+        fprintf(stderr, YELLOW"Error en línea %d: %s \n", yylineno, s);
+        if (strcmp(s, "syntax error") == 0) {
+            fprintf(stderr, CYAN"Token no esperado: %s\n", yytext);
+        }
+    }else{
+        exit(1);
     }
+    
+    
 }
 
