@@ -3,11 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "colors.h"
 
 extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 void yyerror(const char* s);
+extern int yylineno;
+extern char* yytext;
 %}
 
 %union {
@@ -77,6 +80,16 @@ function:
         free($4);
         free($7);
     }
+    | INT IDENTIFIER LPAREN parameters RPAREN error
+    {
+        yyerror(RED"Falta la llave de apertura '{' en la definición de la función");
+        YYERROR;
+    }
+    | INT IDENTIFIER LPAREN parameters error
+    {
+        yyerror(RED"Falta el paréntesis de cierre ')' en la definición de la función");
+        YYERROR;
+    }
     ;
 
 parameters:
@@ -121,7 +134,7 @@ statement:
     }
     | RETURN expression SEMICOLON
     {
-        asprintf(&$$, "  %s (* A veces este no hace falta *)\n", $2);
+        asprintf(&$$, "  %s\n", $2);
         free($2);
     }
     | IF LPAREN expression RPAREN LBRACE statements RBRACE
@@ -158,6 +171,16 @@ statement:
         free($10);
         free(trimmed_if);
         free(trimmed_else);
+    }
+    | IF LPAREN expression RPAREN error
+    {
+        yyerror(RED"Falta la llave de apertura '{' después de la condición del if");
+        YYERROR;
+    }
+    | IF LPAREN expression error
+    {
+        yyerror(RED"Falta el paréntesis de cierre ')' en la condición del if");
+        YYERROR;
     }
     | WHILE LPAREN expression RPAREN LBRACE statements RBRACE
     {
@@ -219,6 +242,11 @@ declaration:
     {
         asprintf(&$$, "  let %s = ref 0 in\n", $2);
         free($2);
+    }
+    | INT error SEMICOLON
+    {
+        yyerror(RED"Declaración de variable inválida");
+        YYERROR;
     }
     ;
 
@@ -306,7 +334,9 @@ comment:
 %%
 
 void yyerror(const char* s) {
-    fprintf(stderr, "Error de análisis: %s\n", s);
-    exit(1);
+    fprintf(stderr, YELLOW"Error en línea %d: %s \n", yylineno, s);
+    if (strcmp(s, "syntax error") == 0) {
+        fprintf(stderr, CYAN"Token no esperado: %s\n", yytext);
+    }
 }
 
