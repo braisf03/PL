@@ -188,6 +188,21 @@ statement:
         free($3);
         free($6);
     }
+    | WHILE LPAREN expression RPAREN error
+    {
+        yyerror(RED"Falta la llave de apertura '{' después de la condición del while");
+        YYERROR;
+    }
+    | WHILE LPAREN expression error
+    {
+        yyerror(RED"Falta el paréntesis de cierre ')' en la condición del while");
+        YYERROR;
+    }
+    | WHILE error
+    {
+        yyerror(RED"Estructura del bucle while incorrecta");
+        YYERROR;
+    }
     | FOR LPAREN INT IDENTIFIER ASSIGN expression SEMICOLON expression SEMICOLON IDENTIFIER INCREMENT RPAREN LBRACE statements RBRACE
     {
         char* start_value = $6;
@@ -206,6 +221,21 @@ statement:
         free($6);
         free($8);
         free($14);
+    }
+    | FOR LPAREN INT IDENTIFIER ASSIGN expression SEMICOLON expression SEMICOLON IDENTIFIER INCREMENT RPAREN error
+    {
+        yyerror(RED"Falta la llave de apertura '{' después de la declaración del for");
+        YYERROR;
+    }
+    | FOR LPAREN INT IDENTIFIER ASSIGN expression SEMICOLON expression SEMICOLON IDENTIFIER INCREMENT error
+    {
+        yyerror(RED"Falta el paréntesis de cierre ')' en la declaración del for");
+        YYERROR;
+    }
+    | FOR error
+    {
+        yyerror(RED"Estructura del bucle for incorrecta");
+        YYERROR;
     }
     | IDENTIFIER ASSIGN expression SEMICOLON
     {
@@ -336,11 +366,12 @@ comment:
 void yyerror(const char* s) {
     error_count++;
     if(error_count < 3){
-        fprintf(stderr, YELLOW"Error en línea %d: %s \n", yylineno, s);
+        fprintf(stderr, YELLOW"Error en línea %d: %s \n"RESET, yylineno, s);
         if (strcmp(s, "syntax error") == 0) {
             fprintf(stderr, CYAN"Token no esperado: %s\n", yytext);
         }
     }else{
+        
         exit(1);
     }
     
