@@ -17,7 +17,7 @@ Autor: Brais Sánchez Ferreiro
 3. Instrucciones de compilación/ejecución:
    + Compilación:
     - Se necesita tener Flex, Bison y GCC instalados.
-    - Se ejecuta el comando 'make' en el directorio del proyecto.
+    - Se ejecuta el comando 'make all' en el directorio del proyecto.
     - Esto generará el ejecutable 'translator'.
 
    + Ejecución:
