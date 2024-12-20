@@ -2,8 +2,8 @@ Memoria del Proyecto: Traductor de C a OCaml
 Autor: Brais Sánchez Ferreiro
 
 1. Objetivos de la práctica:
-   - Crear y desarrollar un traductor que pase código en C a OCaml.
-   - Generar código OCaml equivalente a partir del análisis del código C.
+   - Crear y desarrollar un traductor que pase código en C a OCaml y generar código
+     OCaml equivalente a partir del análisis del código C.
    - Manejar estructuras básicas como funciones, declaraciones, bucles y condicionales.
    - Implementar un sistema de manejo de errores para proporcionar feedback útil al usuario.
 
@@ -79,7 +79,7 @@ Autor: Brais Sánchez Ferreiro
 
 8. Limitaciones y posibles mejoras:
    - No fue posible la implementación de tipos de datos como float debido a la forma que tiene
-     Ocaml de tratar a las variables, ya que cuando en C los int y los float usan el + los dos
+     OCaml de tratar a las variables, ya que cuando en C los int y los float usan el + los dos
      para sumar, en OCaml el float necesita el +., que es complicado de implementar. Se podría
      implementar con un registro en el que se escriba que tipo es la variable, pero sería muy
      complejo de añadir.
@@ -92,8 +92,4 @@ Autor: Brais Sánchez Ferreiro
 9. Comentarios adicionales:
    - Se ha intentado generar código lo más cercano posible a OCaml,
      aunque algunas construcciones pueden no ser óptimas.
-
-Esta práctica ha proporcionado una valiosa experiencia en el diseño e implementación de 
-traductores de lenguajes, así como en la comprensión profunda de las diferencias y 
-similitudes entre C y OCaml.
 
