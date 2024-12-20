@@ -91,5 +91,5 @@ Autor: Brais Sánchez Ferreiro
 
 9. Comentarios adicionales:
    - Se ha intentado generar código lo más cercano posible a OCaml,
-     aunque algunas construcciones pueden no ser óptimas.
+     aunque algunas construcciones pueden no ser óptimas o correctas.
 
