@@ -90,8 +90,8 @@ Autor: Brais Sánchez Ferreiro
    - Se podría mejorar el manejo de errores con recuperación para permitir la continuación del análisis.
 
 9. Comentarios adicionales:
-   - Se ha intentado generar código OCaml lo más cercano posible al estilo idiomático 
-    del lenguaje, aunque algunas construcciones pueden no ser óptimas.
+   - Se ha intentado generar código lo más cercano posible a OCaml,
+     aunque algunas construcciones pueden no ser óptimas.
 
 Esta práctica ha proporcionado una valiosa experiencia en el diseño e implementación de 
 traductores de lenguajes, así como en la comprensión profunda de las diferencias y 
